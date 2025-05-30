@@ -1,0 +1,9 @@
+{% extends "base.html" %} {% block content %}
+<form method="POST">
+    <input name="client_name" placeholder="Client Name" required /><br />
+    <input name="service" placeholder="Service Provided" required /><br />
+    <input name="amount" placeholder="Amount" type="number" required /><br />
+    <input name="date" placeholder="YYYY-MM-DD" required /><br />
+    <button type="submit">Create Invoice</button>
+</form>
+{% endblock %}
