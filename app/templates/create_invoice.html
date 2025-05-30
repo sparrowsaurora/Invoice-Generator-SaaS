@@ -6,17 +6,89 @@
         <input name="client_name" class="form-control" required />
     </div>
     <div class="mb-3">
+        <label class="form-label">Company Name</label>
+        <input name="company_name" class="form-control" required />
+    </div>
+    <div class="mb-3">
         <label class="form-label">Service Provided</label>
         <input name="service" class="form-control" required />
     </div>
     <div class="mb-3">
         <label class="form-label">Amount ($)</label>
-        <input name="amount" type="number" class="form-control" required />
+        <input
+            name="amount"
+            type="number"
+            step="0.01"
+            class="form-control"
+            required
+        />
     </div>
     <div class="mb-3">
-        <label class="form-label">Date</label>
-        <input name="date" type="date" class="form-control" required />
+        <label class="form-label">Invoice Date</label>
+        <input name="date" type="date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Due Date</label>
+        <input name="due_date" type="date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Invoice Items</label>
+        <table class="table" id="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price ($)</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-success"
+                            onclick="addItemRow()"
+                        >
+                            +
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="items-body">
+                <!-- JS will fill rows -->
+            </tbody>
+        </table>
+        <input type="hidden" name="items" id="items-json" />
     </div>
     <button type="submit" class="btn btn-primary">Create Invoice</button>
 </form>
+<script>
+    function addItemRow(desc = "", qty = 1, price = 0.0) {
+        const tbody = document.getElementById("items-body");
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+        <td><input type="text" class="form-control" value="${desc}" /></td>
+        <td><input type="number" class="form-control" value="${qty}" min="1" /></td>
+        <td><input type="number" class="form-control" value="${price}" min="0" step="0.01" /></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">×</button></td>
+    `;
+
+        tbody.appendChild(row);
+    }
+
+    function gatherItems() {
+        const rows = document.querySelectorAll("#items-body tr");
+        const items = [];
+
+        rows.forEach((row) => {
+            const cells = row.querySelectorAll("input");
+            items.push({
+                description: cells[0].value,
+                quantity: parseInt(cells[1].value),
+                unit_price: parseFloat(cells[2].value),
+            });
+        });
+
+        document.getElementById("items-json").value = JSON.stringify(items);
+    }
+
+    document.querySelector("form").addEventListener("submit", gatherItems);
+</script>
 {% endblock %}

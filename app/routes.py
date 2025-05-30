@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, send_file, make_response
+from flask import Blueprint, render_template, request, redirect, url_for, make_response, flash
 from .models import Invoice
 from . import db
 from xhtml2pdf import pisa
 import io
-import datetime
+from datetime import datetime, timezone
 import os
 from flask_login import login_required, current_user
+import json
+
 
 main = Blueprint('main', __name__)
 
@@ -14,7 +16,7 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('main.landing'))
     
-    invoices = Invoice.query.order_by(Invoice.date.desc()).all()
+    invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
     total_invoices = len(invoices)
     total_revenue = sum(inv.amount for inv in invoices)
     last_invoice_date = invoices[0].date if invoices else "N/A"
@@ -32,23 +34,45 @@ def index():
 @login_required
 def create_invoice():
     if request.method == "POST":
-        client_name = request.form["client_name"]
-        service = request.form["service"]
-        amount = float(request.form["amount"])
-        date = request.form["date"]
-        
-        invoice = Invoice(client_name=client_name, service=service, amount=amount, date=date)
-        db.session.add(invoice)
-        db.session.commit()
+        try:
+            client_name = request.form["client_name"]
+            company_name = request.form["company_name"]
+            service = request.form["service"]
+            amount = float(request.form["amount"])
+            date = request.form.get("date") or datetime.today().strftime('%Y-%m-%d')
+            due_date = request.form.get("due_date") or ""
+            items_raw = request.form["items"]
 
-        return redirect(url_for('main.confirm_invoice', id=invoice.id))  # New holding page
+            # Parse and validate items JSON
+            items = json.loads(items_raw)
+
+            invoice = Invoice(
+                client_name=client_name,
+                company_name=company_name,
+                service=service,
+                amount=amount,
+                date=date,
+                due_date=due_date,
+                items=json.dumps(items),  # Save as JSON string
+                user_id=current_user.id
+            )
+
+            db.session.add(invoice)
+            db.session.commit()
+            return redirect(url_for('main.confirm_invoice', id=invoice.id))
+        except Exception as e:
+            flash(f"Error creating invoice: {e}", "danger")
+
     return render_template('create_invoice.html')
 
 @main.route('/confirm/<int:id>')
 @login_required
 def confirm_invoice(id):
     invoice = Invoice.query.get_or_404(id)
-    return render_template('confirm_invoice.html', invoice=invoice)
+    # Decode JSON string into Python list/dict
+    items = json.loads(invoice.items)
+    return render_template('confirm_invoice.html', invoice=invoice, items=items)
+
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -56,13 +80,22 @@ def edit_invoice(id):
     invoice = Invoice.query.get_or_404(id)
 
     if request.method == "POST":
-        invoice.client_name = request.form["client_name"]
-        invoice.service = request.form["service"]
-        invoice.amount = float(request.form["amount"])
-        invoice.date = request.form["date"]
+        try:
+            invoice.client_name = request.form["client_name"]
+            invoice.company_name = request.form["company_name"]
+            invoice.service = request.form["service"]
+            invoice.amount = float(request.form["amount"])
+            invoice.date = request.form.get("date") or invoice.date
+            invoice.due_date = request.form.get("due_date") or ""
+            items_raw = request.form["items"]
 
-        db.session.commit()
-        return redirect(url_for('main.confirm_invoice', id=invoice.id))
+            # Validate and update items
+            invoice.items = json.dumps(json.loads(items_raw))
+
+            db.session.commit()
+            return redirect(url_for('main.confirm_invoice', id=invoice.id))
+        except Exception as e:
+            flash(f"Error updating invoice: {e}", "danger")
 
     return render_template('edit_invoice.html', invoice=invoice)
 
@@ -70,11 +103,17 @@ def edit_invoice(id):
 @login_required
 def download_invoice(id):
     invoice = Invoice.query.get_or_404(id)
-    html = render_template('invoice_pdf.html', invoice=invoice)
+    
+    try:
+        item_list = json.loads(invoice.items)
+    except:
+        item_list = []
+
+    html = render_template('invoice_pdf.html', invoice=invoice, items=item_list)
 
     result = io.BytesIO()
     pdf = pisa.CreatePDF(io.StringIO(html), dest=result)
-    
+
     if not pdf.err:
         response = make_response(result.getvalue())
         response.headers['Content-Type'] = 'application/pdf'
@@ -89,7 +128,7 @@ def landing():
 @main.route('/invoices')
 @login_required
 def invoices():
-    invoices = Invoice.query.order_by(Invoice.date.desc()).all()
+    invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
     # recent_invoices = invoices[:30]
     return render_template(
         'all_invoices.html',
@@ -101,3 +140,21 @@ def invoices():
 @login_required
 def account():
     return render_template('account.html', user=current_user)
+
+@main.route('/invoice/<int:id>/archive', methods=['POST'])
+@login_required
+def archive_invoice(id):
+    invoice = Invoice.query.get_or_404(id)
+    invoice.status = 'archived'
+    db.session.commit()
+    flash('Invoice archived.')
+    return redirect(url_for('main.index'))
+
+@main.route('/invoice/<int:id>/unarchive', methods=['POST'])
+@login_required
+def unarchive_invoice(id):
+    invoice = Invoice.query.get_or_404(id)
+    invoice.status = 'unpaid'  # Or 'active' if that’s your logic
+    db.session.commit()
+    flash('Invoice unarchived.')
+    return redirect(url_for('main.index'))
