@@ -10,8 +10,10 @@ from flask_login import login_required, current_user
 main = Blueprint('main', __name__)
 
 @main.route('/')
-@login_required
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('main.landing'))
+    
     invoices = Invoice.query.order_by(Invoice.date.desc()).all()
     total_invoices = len(invoices)
     total_revenue = sum(inv.amount for inv in invoices)

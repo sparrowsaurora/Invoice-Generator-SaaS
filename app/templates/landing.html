@@ -1,3 +1,62 @@
-{% extends "index.html" %} {% block content %}
-<h1>LANDING PAGE</h1>
+{% extends "base.html" %} {% block content %}
+<header class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h1 class="display-4">Welcome to InvoicePro</h1>
+        <p class="lead">Create, manage, and download your invoices with ease</p>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-light btn-lg mt-3"
+            >Get Started</a
+        >
+        <a
+            href="{{ url_for('auth.login') }}"
+            class="btn btn-outline-light btn-lg mt-3 ms-2"
+            >Login</a
+        >
+    </div>
+</header>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="mb-4">
+                    <i class="bi bi-file-earmark-text fs-1 text-primary"></i>
+                </div>
+                <h4>Create Invoices</h4>
+                <p>
+                    Generate professional invoices in seconds with our simple
+                    form-based system.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-4">
+                    <i class="bi bi-cloud-arrow-down fs-1 text-primary"></i>
+                </div>
+                <h4>Download as PDF</h4>
+                <p>
+                    Download your invoices as PDFs instantly and share them with
+                    your clients.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-4">
+                    <i class="bi bi-speedometer2 fs-1 text-primary"></i>
+                </div>
+                <h4>Manage Everything</h4>
+                <p>
+                    Track your invoices, revenue, and client interactions from
+                    your dashboard.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Start invoicing smarter today</h2>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg"
+            >Sign Up Free</a
+        >
+    </div>
+</section>
 {% endblock %}
