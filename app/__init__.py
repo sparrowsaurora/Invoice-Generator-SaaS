@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+from flask_login import LoginManager
 
 db = SQLAlchemy()
 
@@ -10,7 +11,20 @@ def create_app():
     db.init_app(app)
     
     from .routes import main
+    from .auth import auth as auth_blueprint
     app.register_blueprint(main)
+    app.register_blueprint(auth_blueprint)
+
+    from .models import User
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'  # redirect to login if not logged in
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    login_manager.init_app(app)
 
     # 404 handler
     @app.errorhandler(404)

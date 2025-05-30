@@ -5,10 +5,12 @@ from xhtml2pdf import pisa
 import io
 import datetime
 import os
+from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
+@login_required
 def index():
     invoices = Invoice.query.order_by(Invoice.date.desc()).all()
     total_invoices = len(invoices)
@@ -25,6 +27,7 @@ def index():
     )
 
 @main.route('/create', methods=['GET', 'POST'])
+@login_required
 def create_invoice():
     if request.method == "POST":
         client_name = request.form["client_name"]
@@ -40,11 +43,13 @@ def create_invoice():
     return render_template('create_invoice.html')
 
 @main.route('/confirm/<int:id>')
+@login_required
 def confirm_invoice(id):
     invoice = Invoice.query.get_or_404(id)
     return render_template('confirm_invoice.html', invoice=invoice)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_invoice(id):
     invoice = Invoice.query.get_or_404(id)
 
@@ -60,6 +65,7 @@ def edit_invoice(id):
     return render_template('edit_invoice.html', invoice=invoice)
 
 @main.route('/download/<int:id>')
+@login_required
 def download_invoice(id):
     invoice = Invoice.query.get_or_404(id)
     html = render_template('invoice_pdf.html', invoice=invoice)
@@ -79,6 +85,7 @@ def landing():
     return render_template('landing.html')
 
 @main.route('/invoices')
+@login_required
 def invoices():
     invoices = Invoice.query.order_by(Invoice.date.desc()).all()
     # recent_invoices = invoices[:30]
@@ -87,3 +94,8 @@ def invoices():
         invoices=invoices
         # recent_invoices=recent_invoices
     )
+
+@main.route('/account')
+@login_required
+def account():
+    return render_template('account.html', user=current_user)
