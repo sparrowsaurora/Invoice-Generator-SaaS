@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Confirm Invoice</title>
+    </head>
+    <body>
+        <h1>Invoice Preview</h1>
+        <p><strong>Client:</strong> {{ invoice.client_name }}</p>
+        <p><strong>Service:</strong> {{ invoice.service }}</p>
+        <p><strong>Amount:</strong> ${{ invoice.amount }}</p>
+        <p><strong>Date:</strong> {{ invoice.date }}</p>
+
+        <a href="{{ url_for('main.edit_invoice', id=invoice.id) }}"
+            >Edit Invoice</a
+        >
+        |
+        <a href="{{ url_for('main.download_invoice', id=invoice.id) }}"
+            >Confirm & Download</a
+        >
+    </body>
+</html>

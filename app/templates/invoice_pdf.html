@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <body>
-        <h2>Invoice</h2>
-        <p>Client: {{ invoice.client_name }}</p>
-        <p>Service: {{ invoice.service }}</p>
-        <p>Amount: ${{ invoice.amount }}</p>
-        <p>Date: {{ invoice.date }}</p>
-    </body>
-</html>
+{% extends "index.html" %} {% block content %}
+<h2>Invoice</h2>
+<p>Client: {{ invoice.client_name }}</p>
+<p>Service: {{ invoice.service }}</p>
+<p>Amount: ${{ invoice.amount }}</p>
+<p>Date: {{ invoice.date }}</p>
+{% endblock %}

@@ -1,6 +1,6 @@
 from . import db
 
-class Invoic(db.Model):
+class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client_name = db.Column(db.String(100))
     service = db.Column(db.String(200))
