@@ -1,12 +1,86 @@
-<!DOCTYPE html>
-<html lang="en-au">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>Invoice Generator</h1>
-        {% block content %}{% endblock %}
-    </body>
-</html>
+{% extends "base.html" %} {% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <!-- Stat Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Invoices</h5>
+                    <p class="card-text fs-4">{{ total_invoices }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <p class="card-text fs-4">${{ total_revenue }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Last Invoice Date</h5>
+                    <p class="card-text fs-5">{{ last_invoice_date }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-4">
+        <a
+            href="{{ url_for('main.create_invoice') }}"
+            class="btn btn-outline-primary me-2"
+            >Create New Invoice</a
+        >
+        <a
+            href="{{ url_for('main.invoices') }}"
+            class="btn btn-outline-secondary"
+            >View All Invoices</a
+        >
+    </div>
+
+    <!-- Recent Invoices Table -->
+    <div class="card">
+        <div class="card-header">Recent Invoices</div>
+        <div class="card-body p-0">
+            {% if recent_invoices %}
+            <table class="table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in recent_invoices %}
+                    <tr>
+                        <td>{{ invoice.client_name }}</td>
+                        <td>{{ invoice.service }}</td>
+                        <td>${{ invoice.amount }}</td>
+                        <td>{{ invoice.date }}</td>
+                        <td>
+                            <a
+                                href="{{ url_for('main.confirm_invoice', id=invoice.id) }}"
+                                class="btn btn-sm btn-outline-primary"
+                                >View</a
+                            >
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="p-3">No recent invoices.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

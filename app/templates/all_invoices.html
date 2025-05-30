@@ -1,0 +1,42 @@
+<!-- Invoices Table -->
+{% extends "base.html" %} {% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header">Invoices</div>
+        <div class="card-body p-0">
+            {% if invoices %}
+            <table class="table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.client_name }}</td>
+                        <td>{{ invoice.service }}</td>
+                        <td>${{ invoice.amount }}</td>
+                        <td>{{ invoice.date }}</td>
+                        <td>
+                            <a
+                                href="{{ url_for('main.confirm_invoice', id=invoice.id) }}"
+                                class="btn btn-sm btn-outline-primary"
+                                >View</a
+                            >
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="p-3">No recent invoices.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

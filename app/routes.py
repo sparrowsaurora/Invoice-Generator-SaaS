@@ -10,8 +10,19 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    invoices = Invoice.query.all()
-    return render_template('index.html', invoices=invoices)
+    invoices = Invoice.query.order_by(Invoice.date.desc()).all()
+    total_invoices = len(invoices)
+    total_revenue = sum(inv.amount for inv in invoices)
+    last_invoice_date = invoices[0].date if invoices else "N/A"
+    recent_invoices = invoices[:5]
+
+    return render_template(
+        'index.html',
+        total_invoices=total_invoices,
+        total_revenue=total_revenue,
+        last_invoice_date=last_invoice_date,
+        recent_invoices=recent_invoices
+    )
 
 @main.route('/create', methods=['GET', 'POST'])
 def create_invoice():
@@ -66,3 +77,13 @@ def download_invoice(id):
 @main.route('/landing')
 def landing():
     return render_template('landing.html')
+
+@main.route('/invoices')
+def invoices():
+    invoices = Invoice.query.order_by(Invoice.date.desc()).all()
+    # recent_invoices = invoices[:30]
+    return render_template(
+        'all_invoices.html',
+        invoices=invoices
+        # recent_invoices=recent_invoices
+    )

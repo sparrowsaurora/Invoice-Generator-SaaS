@@ -1,10 +1,22 @@
 {% extends "index.html" %} {% block content %}
-<h1>Create an Invoice</h1>
-<form method="POST">
-    <input name="client_name" placeholder="Client Name" required /><br />
-    <input name="service" placeholder="Service Provided" required /><br />
-    <input name="amount" placeholder="Amount" type="number" required /><br />
-    <input name="date" placeholder="YYYY-MM-DD" required /><br />
-    <button type="submit">Create Invoice</button>
+<h1 class="mb-4">Create an Invoice</h1>
+<form method="POST" class="needs-validation" novalidate>
+    <div class="mb-3">
+        <label class="form-label">Client Name</label>
+        <input name="client_name" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Service Provided</label>
+        <input name="service" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Amount ($)</label>
+        <input name="amount" type="number" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input name="date" type="date" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Create Invoice</button>
 </form>
 {% endblock %}

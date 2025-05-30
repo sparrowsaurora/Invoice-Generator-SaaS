@@ -1,7 +1,28 @@
-{% extends "index.html" %} {% block content %}
-<h2>Invoice</h2>
-<p>Client: {{ invoice.client_name }}</p>
-<p>Service: {{ invoice.service }}</p>
-<p>Amount: ${{ invoice.amount }}</p>
-<p>Date: {{ invoice.date }}</p>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 30px;
+            }
+            .invoice-box {
+                border: 1px solid #eee;
+                padding: 20px;
+            }
+            h2 {
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="invoice-box">
+            <h2>Invoice</h2>
+            <p><strong>Client:</strong> {{ invoice.client_name }}</p>
+            <p><strong>Service:</strong> {{ invoice.service }}</p>
+            <p><strong>Amount:</strong> ${{ invoice.amount }}</p>
+            <p><strong>Date:</strong> {{ invoice.date }}</p>
+        </div>
+    </body>
+</html>
