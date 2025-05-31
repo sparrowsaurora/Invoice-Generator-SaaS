@@ -67,24 +67,72 @@
         <td><input type="text" class="form-control" value="${desc}" /></td>
         <td><input type="number" class="form-control" value="${qty}" min="1" /></td>
         <td><input type="number" class="form-control" value="${price}" min="0" step="0.01" /></td>
-        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">×</button></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); recalculateTotal();">×</button></td>
     `;
 
         tbody.appendChild(row);
     }
 
-    function gatherItems() {
+    function recalculateTotal() {
         const rows = document.querySelectorAll("#items-body tr");
-        const items = [];
+        let total = 0;
 
         rows.forEach((row) => {
-            const cells = row.querySelectorAll("input");
+            const inputs = row.querySelectorAll("input");
+            const quantity = parseInt(inputs[1].value) || 0;
+            const unit_price = parseFloat(inputs[2].value) || 0;
+            total += quantity * unit_price;
+        });
+
+        const amountInput = document.querySelector('input[name="amount"]');
+        if (amountInput) {
+            amountInput.value = total.toFixed(2);
+        }
+    }
+
+    // Recalculate whenever inputs change
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#items-body")) {
+            recalculateTotal();
+        }
+    });
+
+    function gatherItems(e) {
+        const rows = document.querySelectorAll("#items-body tr");
+        const items = [];
+        let computedTotal = 0;
+
+        rows.forEach((row) => {
+            const inputs = row.querySelectorAll("input");
+            const description = inputs[0].value;
+            const quantity = parseInt(inputs[1].value) || 0;
+            const unit_price = parseFloat(inputs[2].value) || 0;
+            const itemTotal = quantity * unit_price;
+            computedTotal += itemTotal;
+
             items.push({
-                description: cells[0].value,
-                quantity: parseInt(cells[1].value),
-                unit_price: parseFloat(cells[2].value),
+                description,
+                quantity,
+                unit_price,
             });
         });
+
+        const amountField = document.querySelector('input[name="amount"]');
+        let userAmount = parseFloat(amountField.value || 0);
+
+        const roundedUserAmount = Math.round(userAmount * 100) / 100;
+        const roundedComputedTotal = Math.round(computedTotal * 100) / 100;
+
+        if (roundedUserAmount !== roundedComputedTotal) {
+            e.preventDefault();
+            amountField.value = roundedComputedTotal.toFixed(2);
+            alert(
+                `⚠️ The amount field has been updated to match item total: $${roundedComputedTotal.toFixed(
+                    2
+                )}.`
+            );
+            return false;
+        }
 
         document.getElementById("items-json").value = JSON.stringify(items);
     }
