@@ -121,6 +121,14 @@ def download_invoice(id):
         return response
     return "PDF generation failed", 500
 
+@main.route('/send/<int:id>') # Use stmp to send pdf and email template to input user. (maybe list to send to email on database? model for invoiuce)
+@login_required
+def send_invoice(id):
+    # invoice = Invoice.query.get_or_404(id)
+    # # Decode JSON string into Python list/dict
+    # items = json.loads(invoice.items)
+    # return render_template('send_invoice.html', invoice=invoice, items=items)
+
 @main.route('/landing')
 def landing():
     return render_template('landing.html')

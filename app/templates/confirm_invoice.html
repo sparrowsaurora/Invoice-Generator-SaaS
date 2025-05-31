@@ -58,5 +58,11 @@
     >
         Edit Invoice
     </a>
+    <a
+        href="{{ url_for('main.send_invoice', id=invoice.id) }}"
+        class="btn btn-outline-secondary"
+    >
+        Send Invoice
+    </a>
 </div>
 {% endblock %}
