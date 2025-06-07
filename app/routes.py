@@ -46,6 +46,14 @@ def create_invoice():
             # Parse and validate items JSON
             items = json.loads(items_raw)
 
+            # Validate items server-side
+            if not isinstance(items, list) or not items:
+                raise ValueError("Invoice must include at least one valid item.")
+
+            for item in items:
+                if not all(k in item for k in ("description", "quantity", "unit_price")):
+                    raise ValueError("Each item must have description, quantity, and unit price.")
+
             invoice = Invoice(
                 client_name=client_name,
                 company_name=company_name,

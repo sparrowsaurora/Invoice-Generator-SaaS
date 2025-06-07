@@ -30,7 +30,7 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
         if not user or not user.check_password(password):
-            flash('Invalid credentials')
+            flash('Invalid credentials', 'danger')
             return redirect(url_for('auth.login'))
 
         login_user(user)
