@@ -14,8 +14,8 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     if not current_user.is_authenticated:
-        return redirect(url_for('main.landing'))
-    
+        return render_template('landing.html')
+
     invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
     total_invoices = len(invoices)
     total_revenue = sum(inv.amount for inv in invoices)
@@ -136,10 +136,6 @@ def download_invoice(id):
 #     # # Decode JSON string into Python list/dict
 #     # items = json.loads(invoice.items)
 #     # return render_template('send_invoice.html', invoice=invoice, items=items)
-
-@main.route('/landing')
-def landing():
-    return render_template('landing.html')
 
 @main.route('/invoices')
 @login_required
